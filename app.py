@@ -83,8 +83,10 @@ if N_plot > 0:
                     )
                 
                 tmp_points = plotly_events(fig, click_event=True, key=f"interactive-figure-{ii}_{jj}")
-                tmp_points[0]["kx"] = k1
-                tmp_points[0]["ky"] = k2
-                selected_points.append(tmp_points[0])
+
+                if tmp_points:
+                    tmp_points[0]["kx"] = k1
+                    tmp_points[0]["ky"] = k2
+                    selected_points.append(tmp_points[0])
     
     st.write(df.iloc[list(set.intersection(*[set(df[df[point["kx"]] == point["x"]].index.tolist()) for point in selected_points]))])
