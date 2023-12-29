@@ -88,5 +88,6 @@ if N_plot > 0:
                     tmp_points[0]["kx"] = k1
                     tmp_points[0]["ky"] = k2
                     selected_points.append(tmp_points[0])
-    
-    st.write(df.iloc[list(set.intersection(*[set(df[df[point["kx"]] == point["x"]].index.tolist()) for point in selected_points]))])
+    if selected_points:
+        st.write("The following individuals were determined to fit your selected criterion")
+        st.write(df.iloc[list(set.intersection(*[set(df[df[point["kx"]] == point["x"]].index.tolist()) for point in selected_points]))])
