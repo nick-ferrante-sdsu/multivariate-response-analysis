@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Analysis Tool", page_icon="📊", layout="wide")
-st.title("Abuse Victim Analysis Tool")
+st.title("Multivariate Response Analysis Tool")
 
 df: pd.DataFrame = pd.read_pickle("response_data.pkl")
 df =df.replace("Don't Remember", np.nan)
