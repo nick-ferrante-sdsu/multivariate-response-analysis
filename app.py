@@ -5,6 +5,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import seaborn as sns
 import matplotlib.pyplot as plt
+from streamlit_plotly_events import plotly_events
+import plotly.io as pio
+pio.templates.default = "plotly"
 
 st.set_page_config(page_title="Analysis Tool", page_icon="📊", layout="wide")
 st.title("Multivariate Response Analysis Tool")
@@ -52,40 +55,36 @@ plot_keys_options = [
 ]
 plot_keys = st.multiselect("", options=plot_keys_options)
 N_plot = len(plot_keys)
-N_cols = 2
-N_rows = int(np.ceil(N_plot/N_cols))
+N_cols = N_plot
+N_rows = N_plot
+
+selected_points = []
+
 if N_plot > 0:
+    cols = st.columns(N_cols)
+    for ii in reversed(range(N_rows)):
+        for jj in reversed(range(ii+1)):
+            k1 = plot_keys[jj]
+            k2 = plot_keys[ii]
 
-    fig = make_subplots(
-            rows=N_rows,
-            cols=N_cols,
-    )
-    fig.update_layout(showlegend=False)
-    for ii, key in enumerate(plot_keys):
-        row, col = ii // N_cols + 1, ii % N_cols + 1
-        
-        fig.add_trace(
-            go.Histogram(x=df[key]),
-            row=row, col=col,
-        )
-
-    st.plotly_chart(fig)
-
-    fig = go.Figure()
-    dimensions=[
-                dict(
-                    label=key,
-                    values=df[key],
-                ) for key in plot_keys
-            ]
-    fig.add_trace(
-        go.Splom(
-            dimensions=dimensions,
-            diagonal_visible=False, # remove plots on diagonal
-            showupperhalf=False, # remove plots on diagonal
-            )
-    )
-    st.plotly_chart(fig)
-
-    plot = sns.pairplot(df, vars=plot_keys, corner=True)
-    st.pyplot(plot)
+            with cols[jj]:
+                fig = go.Figure()
+                if ii==jj:
+                    fig.add_trace(
+                        go.Histogram(x=df[k1]),
+                    )
+                else:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=df[k1],
+                            y=df[k2],
+                            mode="markers"
+                        )
+                    )
+                
+                tmp_points = plotly_events(fig, click_event=True, key=f"interactive-figure-{ii}_{jj}")
+                tmp_points[0]["kx"] = k1
+                tmp_points[0]["ky"] = k2
+                selected_points.append(tmp_points[0])
+    
+    st.write(df.iloc[list(set.intersection(*[set(df[df[point["kx"]] == point["x"]].index.tolist()) for point in selected_points]))])
