@@ -93,7 +93,6 @@ if N_plot > 0:
                         go.Histogram(x=df[k1]),
                     )
                 else:
-                    x, y = df[k1], df[k2]
                     tmpdf = df[[k1, k2]]
                     tt = tmpdf.groupby(tmpdf.columns.tolist(),as_index=False).size()
                     fig.add_trace(
