@@ -93,11 +93,20 @@ if N_plot > 0:
                         go.Histogram(x=df[k1]),
                     )
                 else:
+                    x, y = df[k1], df[k2]
+                    tmpdf = df[[k1, k2]]
+                    tt = tmpdf.groupby(tmpdf.columns.tolist(),as_index=False).size()
                     fig.add_trace(
                         go.Scatter(
-                            x=df[k1],
-                            y=df[k2],
-                            mode="markers"
+                            x=tt[k1],
+                            y=tt[k2],
+                            mode="markers",
+                            text = [f"Count: {cval}" for cval in tt["size"]],
+                            marker=dict(
+                                color=tt["size"], #set color equal to a variable
+                                colorscale='portland', # one of plotly colorscales
+                                showscale=True
+                            ),
                         )
                     )
                 
