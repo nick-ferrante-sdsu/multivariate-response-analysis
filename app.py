@@ -17,8 +17,18 @@ df =df.replace("Don't Remember", np.nan)
 
 columns_df = pd.read_excel("columns.xlsx")
 
-st.subheader("Dataset")
+st.subheader("Dataset Viewing")
+st.write("""
+         In this section you may look at the dataset collected.
+         Within the first expander you will find the questions used to populate the keys provided in this dataset.
+         Each respondent was allowed to provide up to 5 responses per submission.
+         Each response is included as a separate entry with their ID column allowing for later collation of data to the original dataset.
+         """
+    )
 view_selection = st.radio("Dataset View", options=["None", "Selected Keys", "Full Dataset"], index=0, horizontal=True)
+
+with st.expander("Open to view questions used to populate columns", expanded=False):
+    st.write(columns_df)
 
 view_keys = []
 if view_selection == "None":
@@ -30,6 +40,15 @@ elif view_selection == "Full Dataset":
     st.write(df)
 
 st.subheader("Data Plotting")
+st.markdown(
+    """
+    In this section, first select keys from the dataset to visualize.
+    * If only one key is selected, a histogram of responses is shown.
+    * With more than one key selected, the user is then presented a [scatter plot matrix (SPLOM) arrangement of data](https://medium.com/plotly/what-is-a-splom-chart-make-scatterplot-matrices-in-python-8dc4998921c3) to investigate relationships between client responses.
+    * Finally, you may select a point from any combination of plots and the dataset will be queried to show responses containing the selected traits subsequent to the plotting field.
+    * Refresh the page to begin a new point selection (future features will bring a refresh button)
+    """ 
+)
 st.text("Please select keys to analyze")
 plot_keys_options = [
     "nickname", 
