@@ -3,10 +3,13 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
 from streamlit_plotly_events import plotly_events
 import plotly.io as pio
+from utils import compare_responses
+
 pio.templates.default = "plotly"
 
 st.set_page_config(page_title="Analysis Tool", page_icon="📊", layout="wide")
@@ -118,3 +121,43 @@ if N_plot > 0:
     if selected_points:
         st.write("The following individuals were determined to fit your selected criterion")
         st.write(df.iloc[list(set.intersection(*[set(df[df[point["kx"]] == point["x"]].index.tolist()) for point in selected_points]))])
+
+st.subheader("Data Comparator")
+st.markdown(
+    """
+    In this section we perform a cross correlation analysis to determine similarities between responses
+
+    """ 
+)
+
+compare_keys_default = ['nickname', 'years', 'gender', 'race', 'age', 'height', 'bodybuild', 'bodyframe', 'hair', 'hairstyle', 'hairtype', 'eye', 'glasses', 'voice', 'smell', 'notablefeatures', 'tattoo', 'jewelry', 'worktime', 'relation', 'location']
+compare_keys = st.multiselect("Keys to analyze", options=compare_keys_default, default=compare_keys_default)
+threshold = st.slider("Similarity Threshold [%]", min_value=0, max_value=100, step=1, value=40, format="%d%%")
+
+similarity_matrix, score_matrix = compare_responses(df=df, compare_keys=compare_keys)
+
+xi, yi = np.where(similarity_matrix > threshold)
+
+best_indx = np.argmax(np.max(similarity_matrix[xi, yi]))
+best_value = similarity_matrix[xi[best_indx], yi[best_indx]]
+st.write(f"Found {len(xi)} pairs with at least {threshold}% similarity. The best similarity was {best_value}% similarity for respondents {xi[best_indx]} and {yi[best_indx]}.")
+
+with st.expander("Similarity Response Diagram"):
+    fig = px.imshow(similarity_matrix)
+    st.plotly_chart(fig, use_container_width=True)
+
+for ii, jj in zip(xi, yi):
+    s = score_matrix[ii, jj]
+    sk = [k for k, v in s.items() if v]
+    x1 = df.loc[ii]
+    x2 = df.loc[jj]
+    ss = pd.Series(x1[sk].values, index=sk)
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.dataframe(x1, use_container_width=True)
+    with c2:
+        st.dataframe(x2, use_container_width=True)
+    with c3:
+        st.json(dict(ss))
+    
