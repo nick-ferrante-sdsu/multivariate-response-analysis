@@ -145,19 +145,19 @@ st.write(f"Found {len(xi)} pairs with at least {threshold}% similarity. The best
 with st.expander("Similarity Response Diagram"):
     fig = px.imshow(similarity_matrix)
     st.plotly_chart(fig, use_container_width=True)
+with st.expander("Show Similarity Results"):
+    for ii, jj in zip(xi, yi):
+        s = score_matrix[ii, jj]
+        sk = [k for k, v in s.items() if v]
+        x1 = df.loc[ii]
+        x2 = df.loc[jj]
+        ss = pd.Series(x1[sk].values, index=sk)
 
-for ii, jj in zip(xi, yi):
-    s = score_matrix[ii, jj]
-    sk = [k for k, v in s.items() if v]
-    x1 = df.loc[ii]
-    x2 = df.loc[jj]
-    ss = pd.Series(x1[sk].values, index=sk)
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.dataframe(x1, use_container_width=True)
-    with c2:
-        st.dataframe(x2, use_container_width=True)
-    with c3:
-        st.json(dict(ss))
-    
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.dataframe(x1, use_container_width=True)
+        with c2:
+            st.dataframe(x2, use_container_width=True)
+        with c3:
+            st.json(dict(ss))
+        
